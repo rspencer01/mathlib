@@ -11,21 +11,21 @@ open category_theory
 
 namespace category_theory.limits
 
-universes v u
+universes j v u
 
 local attribute [tidy] tactic.case_bash
 
-@[derive decidable_eq] inductive walking_cospan : Type v
+@[derive decidable_eq] inductive walking_cospan : Type j
 | left | right | one
-@[derive decidable_eq] inductive walking_span : Type v
+@[derive decidable_eq] inductive walking_span : Type j
 | zero | left | right
 
 namespace walking_cospan
 
-inductive hom : walking_cospan → walking_cospan → Type v
+inductive hom : walking_cospan → walking_cospan → Type j
 | inl : hom left one
 | inr : hom right one
-| id : Π X : walking_cospan.{v}, hom X X
+| id : Π X : walking_cospan.{j}, hom X X
 
 open hom
 
@@ -44,18 +44,18 @@ instance (X Y : walking_cospan) : subsingleton (X ⟶ Y) := by tidy
 
 -- We make this a @[simp] lemma later; if we do it now there's a mysterious
 -- failure in `cospan`, below.
-lemma hom_id (X : walking_cospan.{v}) : hom.id X = 𝟙 X := rfl
+lemma hom_id (X : walking_cospan.{j}) : hom.id X = 𝟙 X := rfl
 
-instance : small_category.{v} walking_cospan.{v} := sparse_category
+instance : small_category.{j} walking_cospan.{j} := sparse_category
 
 end walking_cospan
 
 namespace walking_span
 
-inductive hom : walking_span → walking_span → Type v
+inductive hom : walking_span → walking_span → Type j
 | fst : hom zero left
 | snd : hom zero right
-| id : Π X : walking_span.{v}, hom X X
+| id : Π X : walking_span.{j}, hom X X
 
 open hom
 
@@ -74,18 +74,18 @@ instance (X Y : walking_span) : subsingleton (X ⟶ Y) := by tidy
 
 -- We make this a @[simp] lemma later; if we do it now there's a mysterious
 -- failure in `span`, below.
-lemma hom_id (X : walking_span.{v}) : hom.id X = 𝟙 X := rfl
+lemma hom_id (X : walking_span.{j}) : hom.id X = 𝟙 X := rfl
 
-instance : small_category.{v} walking_span.{v} := sparse_category
+instance : small_category.{j} walking_span.{j} := sparse_category
 
 end walking_span
 
 open walking_span walking_cospan walking_span.hom walking_cospan.hom
 
-variables {C : Type u} [𝒞 : category.{v+1} C]
+variables {C : Type u} [𝒞 : category.{(max j v)+1} C]
 include 𝒞
 
-def cospan {X Y Z : C} (f : X ⟶ Z) (g : Y ⟶ Z) : walking_cospan.{v} ⥤ C :=
+def cospan {X Y Z : C} (f : X ⟶ Z) (g : Y ⟶ Z) : walking_cospan.{j} ⥤ C :=
 { obj := λ x, match x with
   | left := X
   | right := Y
@@ -96,7 +96,7 @@ def cospan {X Y Z : C} (f : X ⟶ Z) (g : Y ⟶ Z) : walking_cospan.{v} ⥤ C :=
   | _, _, inl := f
   | _, _, inr := g
   end }
-def span {X Y Z : C} (f : X ⟶ Y) (g : X ⟶ Z) : walking_span.{v} ⥤ C :=
+def span {X Y Z : C} (f : X ⟶ Y) (g : X ⟶ Z) : walking_span.{j} ⥤ C :=
 { obj := λ x, match x with
   | zero := X
   | left := Y
@@ -187,7 +187,7 @@ end
 end pushout_cocone
 
 def cone.of_pullback_cone
-  {F : walking_cospan.{v} ⥤ C} (t : pullback_cone (F.map inl) (F.map inr)) : cone F :=
+  {F : walking_cospan ⥤ C} (t : pullback_cone (F.map inl) (F.map inr)) : cone F :=
 { X := t.X,
   π :=
   { app := λ X, t.π.app X ≫ eq_to_hom (by tidy),
@@ -199,11 +199,11 @@ def cone.of_pullback_cone
     end } }.
 
 @[simp] lemma cone.of_pullback_cone_π
-  {F : walking_cospan.{v} ⥤ C} (t : pullback_cone (F.map inl) (F.map inr)) (j) :
+  {F : walking_cospan ⥤ C} (t : pullback_cone (F.map inl) (F.map inr)) (j) :
   (cone.of_pullback_cone t).π.app j = t.π.app j ≫ eq_to_hom (by tidy) := rfl
 
 def cocone.of_pushout_cocone
-  {F : walking_span.{v} ⥤ C} (t : pushout_cocone (F.map fst) (F.map snd)) : cocone F :=
+  {F : walking_span ⥤ C} (t : pushout_cocone (F.map fst) (F.map snd)) : cocone F :=
 { X := t.X,
   ι :=
   { app := λ X, eq_to_hom (by tidy) ≫ t.ι.app X,
@@ -215,23 +215,23 @@ def cocone.of_pushout_cocone
     end } }.
 
 @[simp] lemma cocone.of_pushout_cocone_ι
-  {F : walking_span.{v} ⥤ C} (t : pushout_cocone (F.map fst) (F.map snd)) (j) :
+  {F : walking_span ⥤ C} (t : pushout_cocone (F.map fst) (F.map snd)) (j) :
   (cocone.of_pushout_cocone t).ι.app j = eq_to_hom (by tidy) ≫ t.ι.app j := rfl
 
 def pullback_cone.of_cone
-  {F : walking_cospan.{v} ⥤ C} (t : cone F) : pullback_cone (F.map inl) (F.map inr) :=
+  {F : walking_cospan ⥤ C} (t : cone F) : pullback_cone (F.map inl) (F.map inr) :=
 { X := t.X,
   π := { app := λ j, t.π.app j ≫ eq_to_hom (by tidy) } }
 
-@[simp] lemma pullback_cone.of_cone_π {F : walking_cospan.{v} ⥤ C} (t : cone F) (j) :
+@[simp] lemma pullback_cone.of_cone_π {F : walking_cospan ⥤ C} (t : cone F) (j) :
   (pullback_cone.of_cone t).π.app j = t.π.app j ≫ eq_to_hom (by tidy) := rfl
 
 def pushout_cocone.of_cocone
-  {F : walking_span.{v} ⥤ C} (t : cocone F) : pushout_cocone (F.map fst) (F.map snd) :=
+  {F : walking_span ⥤ C} (t : cocone F) : pushout_cocone (F.map fst) (F.map snd) :=
 { X := t.X,
   ι := { app := λ j, eq_to_hom (by tidy) ≫ t.ι.app j } }
 
-@[simp] lemma pushout_cocone.of_cocone_ι {F : walking_span.{v} ⥤ C} (t : cocone F) (j) :
+@[simp] lemma pushout_cocone.of_cocone_ι {F : walking_span ⥤ C} (t : cocone F) (j) :
   (pushout_cocone.of_cocone t).ι.app j = eq_to_hom (by tidy) ≫ t.ι.app j := rfl
 
 end category_theory.limits

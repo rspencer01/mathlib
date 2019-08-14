@@ -19,21 +19,21 @@ namespace topological_space.opens
 
 variables {X Y Z : Top.{u}}
 
-instance opens_category : category.{u+1} (opens X) :=
-{ hom  := λ U V, ulift (plift (U ≤ V)),
-  id   := λ X, ⟨ ⟨ le_refl X ⟩ ⟩,
-  comp := λ X Y Z f g, ⟨ ⟨ le_trans f.down.down g.down.down ⟩ ⟩ }
+instance opens_category : category.{0} (opens X) :=
+{ hom  := λ U V, U ≤ V,
+  id   := λ X, le_refl X,
+  comp := λ X Y Z f g, le_trans f g }
 
 def to_Top (X : Top.{u}) : opens X ⥤ Top :=
 { obj := λ U, ⟨U.val, infer_instance⟩,
-  map := λ U V i, ⟨λ x, ⟨x.1, i.down.down x.2⟩,
+  map := λ U V i, ⟨λ x, ⟨x.1, i x.2⟩,
     (embedding.continuous_iff embedding_subtype_val).2 continuous_induced_dom⟩ }
 
 /-- `opens.map f` gives the functor from open sets in Y to open set in X,
     given by taking preimages under f. -/
 def map (f : X ⟶ Y) : opens Y ⥤ opens X :=
 { obj := λ U, ⟨ f.val ⁻¹' U.val, f.property _ U.property ⟩,
-  map := λ U V i, ⟨ ⟨ λ a b, i.down.down b ⟩ ⟩ }.
+  map := λ U V i, λ a b, i b }.
 
 @[simp] lemma map_obj (f : X ⟶ Y) (U) (p) : (map f).obj ⟨U, p⟩ = ⟨ f.val ⁻¹' U, f.property _ p ⟩ :=
 rfl

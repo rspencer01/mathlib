@@ -13,16 +13,16 @@ open category_theory
 open category_theory.functor
 open category_theory.limits
 
-universes u₁ u₂ v
+universes j v u₁ u₂
 
-variables {C : Type u₁} [𝒞 : category.{v+1} C] {D : Type u₂} [𝒟 : category.{v+1} D]
+variables {C : Type u₁} [𝒞 : category.{(max j v)+1} C] {D : Type u₂} [𝒟 : category.{(max j v)+1} D]
 include 𝒞 𝒟
 
 variables {F : C ⥤ D} {G : D ⥤ C} (adj : F ⊣ G)
 include adj
 
 section preservation_colimits
-variables {J : Type v} [small_category J] (K : J ⥤ C)
+variables {J : Type j} [small_category J] (K : J ⥤ C)
 
 def functoriality_is_left_adjoint :
   is_left_adjoint (@cocones.functoriality _ _ _ _ K _ _ F) :=
@@ -64,7 +64,7 @@ def has_colimit_of_comp_equivalence (E : C ⥤ D) [is_equivalence E] [has_colimi
 end preservation_colimits
 
 section preservation_limits
-variables {J : Type v} [small_category J] (K : J ⥤ D)
+variables {J : Type j} [small_category J] (K : J ⥤ D)
 
 def functoriality_is_right_adjoint :
   is_right_adjoint (@cones.functoriality _ _ _ _ K _ _ G) :=
@@ -106,7 +106,7 @@ def has_limit_of_comp_equivalence (E : D ⥤ C) [is_equivalence E] [has_limit (K
 end preservation_limits
 
 -- Note: this is natural in K, but we do not yet have the tools to formulate that.
-def cocones_iso {J : Type v} [small_category J] {K : J ⥤ C} :
+def cocones_iso {J : Type j} [small_category J] {K : J ⥤ C} :
   (cocones J D).obj (op (K ⋙ F)) ≅ G ⋙ ((cocones J C).obj (op K)) :=
 nat_iso.of_components (λ Y,
 { hom := λ t,
@@ -121,7 +121,7 @@ nat_iso.of_components (λ Y,
 (by tidy)
 
 -- Note: this is natural in K, but we do not yet have the tools to formulate that.
-def cones_iso {J : Type v} [small_category J] {K : J ⥤ D} :
+def cones_iso {J : Type j} [small_category J] {K : J ⥤ D} :
   F.op ⋙ ((cones J D).obj K) ≅ (cones J C).obj (K ⋙ G) :=
 nat_iso.of_components (λ X,
 { hom := λ t,

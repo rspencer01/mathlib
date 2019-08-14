@@ -67,7 +67,7 @@ end
 
 def id (X : PresheafedSpace.{v} C) : hom X X :=
 { f := 𝟙 (X : Top.{v}),
-  c := ((functor.left_unitor _).inv) ≫ (whisker_right (nat_trans.op (opens.map_id _).hom) _) }
+  c := ((functor.left_unitor _).inv) ≫ (whisker_right (nat_trans.op (opens.map_id (X : Top.{v})).hom) _) }
 
 def comp (X Y Z : PresheafedSpace.{v} C) (α : hom X Y) (β : hom Y Z) : hom X Z :=
 { f := α.f ≫ β.f,
@@ -131,7 +131,7 @@ instance {X Y : PresheafedSpace.{v} C} : has_coe (X ⟶ Y) (X.to_Top ⟶ Y.to_To
 
 lemma id_c (X : PresheafedSpace.{v} C) :
   ((𝟙 X) : X ⟶ X).c =
-  (((functor.left_unitor _).inv) ≫ (whisker_right (nat_trans.op (opens.map_id _).hom) _)) := rfl
+  (((functor.left_unitor _).inv) ≫ (whisker_right (nat_trans.op (opens.map_id (X : Top.{v})).hom) _)) := rfl
 
 -- Implementation note: this harmless looking lemma causes deterministic timeouts,
 -- but happily we can survive without it.
@@ -209,7 +209,7 @@ def on_presheaf {F G : C ⥤ D} (α : F ⟶ G) : G.map_presheaf ⟶ F.map_preshe
 { app := λ X,
   { f := 𝟙 _,
     c := whisker_left X.𝒪 α ≫ ((functor.left_unitor _).inv) ≫
-           (whisker_right (nat_trans.op (opens.map_id _).hom) _) },
+           (whisker_right (nat_trans.op (opens.map_id (X : Top.{v})).hom) _) },
   naturality' := λ X Y f,
   begin
     ext1, swap,

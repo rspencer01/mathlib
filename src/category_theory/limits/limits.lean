@@ -12,11 +12,11 @@ open category_theory category_theory.category category_theory.functor opposite
 
 namespace category_theory.limits
 
-universes v u u' u'' w -- declare the `v`'s first; see `category_theory.category` for an explanation
+universes j v u u' u'' w -- declare the `v`'s first; see `category_theory.category` for an explanation
 
 -- See the notes at the top of cones.lean, explaining why we can't allow `J : Prop` here.
-variables {J K : Type v} [small_category J] [small_category K]
-variables {C : Type u} [𝒞 : category.{v+1} C]
+variables {J K : Type j} [small_category J] [small_category K]
+variables {C : Type u} [𝒞 : category.{(max j v)+1} C]
 include 𝒞
 
 variables {F : J ⥤ C}
@@ -98,7 +98,7 @@ def nat_iso (h : is_limit t) : yoneda.obj t.X ≅ F.cones :=
 nat_iso.of_components (λ W, is_limit.hom_iso h (unop W)) (by tidy)
 
 def hom_iso' (h : is_limit t) (W : C) :
-  ((W ⟶ t.X) : Type v) ≅ { p : Π j, W ⟶ F.obj j // ∀ {j j'} (f : j ⟶ j'), p j ≫ F.map f = p j' } :=
+  ((W ⟶ t.X) : Type (max j v)) ≅ { p : Π j, W ⟶ F.obj j // ∀ {j j'} (f : j ⟶ j'), p j ≫ F.map f = p j' } :=
 h.hom_iso W ≪≫
 { hom := λ π,
   ⟨λ j, π.app j, λ j j' f,
@@ -110,7 +110,7 @@ h.hom_iso W ≪≫
 /-- If G : C → D is a faithful functor which sends t to a limit cone,
   then it suffices to check that the induced maps for the image of t
   can be lifted to maps of C. -/
-def of_faithful {t : cone F} {D : Type u'} [category.{v+1} D] (G : C ⥤ D) [faithful G]
+def of_faithful {t : cone F} {D : Type u'} [category.{(max j v)+1} D] (G : C ⥤ D) [faithful G]
   (ht : is_limit (G.map_cone t)) (lift : Π (s : cone F), s.X ⟶ t.X)
   (h : ∀ s, G.map (lift s) = ht.lift (G.map_cone s)) : is_limit t :=
 { lift := lift,
@@ -211,7 +211,7 @@ def nat_iso (h : is_colimit t) : coyoneda.obj (op t.X) ≅ F.cocones :=
 nat_iso.of_components (is_colimit.hom_iso h) (by intros; ext; dsimp; rw ←assoc; refl)
 
 def hom_iso' (h : is_colimit t) (W : C) :
-  ((t.X ⟶ W) : Type v) ≅ { p : Π j, F.obj j ⟶ W // ∀ {j j' : J} (f : j ⟶ j'), F.map f ≫ p j' = p j } :=
+  ((t.X ⟶ W) : Type (max j v)) ≅ { p : Π j, F.obj j ⟶ W // ∀ {j j' : J} (f : j ⟶ j'), F.map f ≫ p j' = p j } :=
 h.hom_iso W ≪≫
 { hom := λ ι,
   ⟨λ j, ι.app j, λ j j' f,
@@ -223,7 +223,7 @@ h.hom_iso W ≪≫
 /-- If G : C → D is a faithful functor which sends t to a colimit cocone,
   then it suffices to check that the induced maps for the image of t
   can be lifted to maps of C. -/
-def of_faithful {t : cocone F} {D : Type u'} [category.{v+1} D] (G : C ⥤ D) [faithful G]
+def of_faithful {t : cocone F} {D : Type u'} [category.{(max j v)+1} D] (G : C ⥤ D) [faithful G]
   (ht : is_colimit (G.map_cocone t)) (desc : Π (s : cocone F), t.X ⟶ s.X)
   (h : ∀ s, G.map (desc s) = ht.desc (G.map_cocone s)) : is_colimit t :=
 { desc := desc,
@@ -262,16 +262,16 @@ class has_limits_of_shape :=
 
 /-- `C` has all (small) limits if it has limits of every shape. -/
 class has_limits :=
-(has_limits_of_shape : Π (J : Type v) [𝒥 : small_category J], has_limits_of_shape J C)
+(has_limits_of_shape : Π (J : Type j) [𝒥 : small_category J], has_limits_of_shape.{j v} J C)
 
 variables {J C}
 
 instance has_limit_of_has_limits_of_shape
-  {J : Type v} [small_category J] [H : has_limits_of_shape J C] (F : J ⥤ C) : has_limit F :=
+  {J : Type j} [small_category J] [H : has_limits_of_shape.{j v} J C] (F : J ⥤ C) : has_limit F :=
 has_limits_of_shape.has_limit F
 
 instance has_limits_of_shape_of_has_limits
-  {J : Type v} [small_category J] [H : has_limits.{v} C] : has_limits_of_shape J C :=
+  {J : Type j} [small_category J] [H : has_limits.{j v} C] : has_limits_of_shape.{j v} J C :=
 has_limits.has_limits_of_shape C J
 
 /- Interface to the `has_limit` class. -/
@@ -290,7 +290,7 @@ def limit.π (F : J ⥤ C) [has_limit F] (j : J) : limit F ⟶ F.obj j :=
   limit.π F j ≫ F.map f = limit.π F j' := (limit.cone F).w f
 
 instance limit.is_limit (F : J ⥤ C) [has_limit F] : is_limit (limit.cone F) :=
-has_limit.is_limit.{v} F
+has_limit.is_limit F
 
 def limit.lift (F : J ⥤ C) [has_limit F] (c : cone F) : c.X ⟶ limit F :=
 (limit.is_limit F).lift c
@@ -324,7 +324,7 @@ def limit.hom_iso (F : J ⥤ C) [has_limit F] (W : C) : (W ⟶ limit F) ≅ (F.c
 (limit.is_limit F).hom_iso_hom f
 
 def limit.hom_iso' (F : J ⥤ C) [has_limit F] (W : C) :
-  ((W ⟶ limit F) : Type v) ≅ { p : Π j, W ⟶ F.obj j // ∀ {j j' : J} (f : j ⟶ j'), p j ≫ F.map f = p j' } :=
+  ((W ⟶ limit F) : Type (max j v)) ≅ { p : Π j, W ⟶ F.obj j // ∀ {j j' : J} (f : j ⟶ j'), p j ≫ F.map f = p j' } :=
 (limit.is_limit F).hom_iso' W
 
 lemma limit.lift_extend {F : J ⥤ C} [has_limit F] (c : cone F) {X : C} (f : X ⟶ c.X) :
@@ -362,7 +362,7 @@ by erw is_limit.fac
   limit.lift F c ≫ limit.pre F E = limit.lift (E ⋙ F) (c.whisker E) :=
 by ext; simp
 
-variables {L : Type v} [small_category L]
+variables {L : Type j} [small_category L]
 variables (D : L ⥤ K) [has_limit (D ⋙ E ⋙ F)]
 
 @[simp] lemma limit.pre_pre : limit.pre F E ≫ limit.pre (E ⋙ F) D = limit.pre F (D ⋙ E) :=
@@ -371,7 +371,7 @@ by ext j; erw [assoc, limit.pre_π, limit.pre_π, limit.pre_π]; refl
 end pre
 
 section post
-variables {D : Type u'} [𝒟 : category.{v+1} D]
+variables {D : Type u'} [𝒟 : category.{(max j v)+1} D]
 include 𝒟
 
 variables (F) [has_limit F] (G : C ⥤ D) [has_limit (F ⋙ G)]
@@ -392,7 +392,7 @@ by erw is_limit.fac
 by ext; rw [assoc, limit.post_π, ←G.map_comp, limit.lift_π, limit.lift_π]; refl
 
 @[simp] lemma limit.post_post
-  {E : Type u''} [category.{v+1} E] (H : D ⥤ E) [has_limit ((F ⋙ G) ⋙ H)] :
+  {E : Type u''} [category.{(max j v)+1} E] (H : D ⥤ E) [has_limit ((F ⋙ G) ⋙ H)] :
 /- H G (limit F) ⟶ H (limit (F ⋙ G)) ⟶ limit ((F ⋙ G) ⋙ H) equals -/
 /- H G (limit F) ⟶ limit (F ⋙ (G ⋙ H)) -/
   H.map (limit.post F G) ≫ limit.post (F ⋙ G) H = limit.post F (G ⋙ H) :=
@@ -400,7 +400,7 @@ by ext; erw [assoc, limit.post_π, ←H.map_comp, limit.post_π, limit.post_π];
 
 end post
 
-lemma limit.pre_post {D : Type u'} [category.{v+1} D]
+lemma limit.pre_post {D : Type u'} [category.{(max j v)+1} D]
   (E : K ⥤ J) (F : J ⥤ C) (G : C ⥤ D)
   [has_limit F] [has_limit (E ⋙ F)] [has_limit (F ⋙ G)] [has_limit ((E ⋙ F) ⋙ G)] :
 /- G (limit F) ⟶ G (limit (E ⋙ F)) ⟶ limit ((E ⋙ F) ⋙ G) vs -/
@@ -437,7 +437,7 @@ end
 
 section lim_functor
 
-variables [has_limits_of_shape J C]
+variables [has_limits_of_shape.{j v} J C]
 
 /-- `limit F` is functorial in `F`, when `C` has all limits of shape `J`. -/
 def lim : (J ⥤ C) ⥤ C :=
@@ -460,11 +460,11 @@ by apply is_limit.fac
   limit.lift F c ≫ lim.map α = limit.lift G ((cones.postcompose α).obj c) :=
 by ext; rw [assoc, lim.map_π, ←assoc, limit.lift_π, limit.lift_π]; refl
 
-lemma limit.map_pre [has_limits_of_shape K C] (E : K ⥤ J) :
+lemma limit.map_pre [has_limits_of_shape.{j v} K C] (E : K ⥤ J) :
   lim.map α ≫ limit.pre G E = limit.pre F E ≫ lim.map (whisker_left E α) :=
 by ext; rw [assoc, limit.pre_π, lim.map_π, assoc, lim.map_π, ←assoc, limit.pre_π]; refl
 
-lemma limit.map_pre' [has_limits_of_shape.{v} K C]
+lemma limit.map_pre' [has_limits_of_shape.{j v} K C]
   (F : J ⥤ C) {E₁ E₂ : K ⥤ J} (α : E₁ ⟶ E₂) :
   limit.pre F E₂ = limit.pre F E₁ ≫ lim.map (whisker_right α F) :=
 by ext1; simp [(category.assoc _ _ _ _).symm]
@@ -472,7 +472,7 @@ by ext1; simp [(category.assoc _ _ _ _).symm]
 lemma limit.id_pre (F : J ⥤ C) :
 limit.pre F (functor.id _) = lim.map (functor.left_unitor F).inv := by tidy
 
-lemma limit.map_post {D : Type u'} [category.{v+1} D] [has_limits_of_shape J D] (H : C ⥤ D) :
+lemma limit.map_post {D : Type u'} [category.{(max j v)+1} D] [has_limits_of_shape.{j v} J D] (H : C ⥤ D) :
 /- H (limit F) ⟶ H (limit G) ⟶ limit (G ⋙ H) vs
    H (limit F) ⟶ limit (F ⋙ H) ⟶ limit (G ⋙ H) -/
   H.map (lim.map α) ≫ limit.post G H = limit.post F H ≫ lim.map (whisker_right α H) :=
@@ -489,8 +489,8 @@ nat_iso.of_components (λ F, nat_iso.of_components (λ W, limit.hom_iso F (unop 
 
 end lim_functor
 
-def has_limits_of_shape_of_equivalence {J' : Type v} [small_category J']
-  (e : J ≌ J') [has_limits_of_shape J C] : has_limits_of_shape J' C :=
+def has_limits_of_shape_of_equivalence {J' : Type j} [small_category J']
+  (e : J ≌ J') [has_limits_of_shape.{j v} J C] : has_limits_of_shape.{j v} J' C :=
 by { constructor, intro F, apply has_limit_of_equivalence_comp e, apply_instance }
 
 end limit
@@ -512,16 +512,16 @@ class has_colimits_of_shape :=
 
 /-- `C` has all (small) colimits if it has colimits of every shape. -/
 class has_colimits :=
-(has_colimits_of_shape : Π (J : Type v) [𝒥 : small_category J], has_colimits_of_shape J C)
+(has_colimits_of_shape : Π (J : Type j) [𝒥 : small_category J], has_colimits_of_shape.{j v} J C)
 
 variables {J C}
 
 instance has_colimit_of_has_colimits_of_shape
-  {J : Type v} [small_category J] [H : has_colimits_of_shape J C] (F : J ⥤ C) : has_colimit F :=
+  {J : Type j} [small_category J] [H : has_colimits_of_shape.{j v} J C] (F : J ⥤ C) : has_colimit F :=
 has_colimits_of_shape.has_colimit F
 
 instance has_colimits_of_shape_of_has_colimits
-  {J : Type v} [small_category J] [H : has_colimits.{v} C] : has_colimits_of_shape J C :=
+  {J : Type j} [small_category J] [H : has_colimits.{j v} C] : has_colimits_of_shape.{j v} J C :=
 has_colimits.has_colimits_of_shape C J
 
 /- Interface to the `has_colimit` class. -/
@@ -540,7 +540,7 @@ def colimit.ι (F : J ⥤ C) [has_colimit F] (j : J) : F.obj j ⟶ colimit F :=
   F.map f ≫ colimit.ι F j' = colimit.ι F j := (colimit.cocone F).w f
 
 instance colimit.is_colimit (F : J ⥤ C) [has_colimit F] : is_colimit (colimit.cocone F) :=
-has_colimit.is_colimit.{v} F
+has_colimit.is_colimit F
 
 def colimit.desc (F : J ⥤ C) [has_colimit F] (c : cocone F) : colimit F ⟶ c.X :=
 (colimit.is_colimit F).desc c
@@ -587,7 +587,7 @@ def colimit.hom_iso (F : J ⥤ C) [has_colimit F] (W : C) : (colimit F ⟶ W) �
 (colimit.is_colimit F).hom_iso_hom f
 
 def colimit.hom_iso' (F : J ⥤ C) [has_colimit F] (W : C) :
-  ((colimit F ⟶ W) : Type v) ≅ { p : Π j, F.obj j ⟶ W // ∀ {j j'} (f : j ⟶ j'), F.map f ≫ p j' = p j } :=
+  ((colimit F ⟶ W) : Type (max j v)) ≅ { p : Π j, F.obj j ⟶ W // ∀ {j j'} (f : j ⟶ j'), F.map f ≫ p j' = p j } :=
 (colimit.is_colimit F).hom_iso' W
 
 lemma colimit.desc_extend (F : J ⥤ C) [has_colimit F] (c : cocone F) {X : C} (f : c.X ⟶ X) :
@@ -632,7 +632,7 @@ by rw [←category.assoc, colimit.ι_pre]
   colimit.pre F E ≫ colimit.desc F c = colimit.desc (E ⋙ F) (c.whisker E) :=
 by ext; rw [←assoc, colimit.ι_pre]; simp
 
-variables {L : Type v} [small_category L]
+variables {L : Type j} [small_category L]
 variables (D : L ⥤ K) [has_colimit (D ⋙ E ⋙ F)]
 
 @[simp] lemma colimit.pre_pre : colimit.pre (E ⋙ F) D ≫ colimit.pre F E = colimit.pre F (D ⋙ E) :=
@@ -646,7 +646,7 @@ end
 end pre
 
 section post
-variables {D : Type u'} [𝒟 : category.{v+1} D]
+variables {D : Type u'} [𝒟 : category.{(max j v)+1} D]
 include 𝒟
 
 variables (F) [has_colimit F] (G : C ⥤ D) [has_colimit (F ⋙ G)]
@@ -671,7 +671,7 @@ by rw [←category.assoc, colimit.ι_post]
 by ext; rw [←assoc, colimit.ι_post, ←G.map_comp, colimit.ι_desc, colimit.ι_desc]; refl
 
 @[simp] lemma colimit.post_post
-  {E : Type u''} [category.{v+1} E] (H : D ⥤ E) [has_colimit ((F ⋙ G) ⋙ H)] :
+  {E : Type u''} [category.{(max j v)+1} E] (H : D ⥤ E) [has_colimit ((F ⋙ G) ⋙ H)] :
 /- H G (colimit F) ⟶ H (colimit (F ⋙ G)) ⟶ colimit ((F ⋙ G) ⋙ H) equals -/
 /- H G (colimit F) ⟶ colimit (F ⋙ (G ⋙ H)) -/
   colimit.post (F ⋙ G) H ≫ H.map (colimit.post F G) = colimit.post F (G ⋙ H) :=
@@ -683,7 +683,7 @@ end
 
 end post
 
-lemma colimit.pre_post {D : Type u'} [category.{v+1} D]
+lemma colimit.pre_post {D : Type u'} [category.{(max j v)+1} D]
   (E : K ⥤ J) (F : J ⥤ C) (G : C ⥤ D)
   [has_colimit F] [has_colimit (E ⋙ F)] [has_colimit (F ⋙ G)] [has_colimit ((E ⋙ F) ⋙ G)] :
 /- G (colimit F) ⟶ G (colimit (E ⋙ F)) ⟶ colimit ((E ⋙ F) ⋙ G) vs -/
@@ -722,7 +722,7 @@ end
 
 section colim_functor
 
-variables [has_colimits_of_shape J C]
+variables [has_colimits_of_shape.{j v} J C]
 
 /-- `colimit F` is functorial in `F`, when `C` has all colimits of shape `J`. -/
 def colim : (J ⥤ C) ⥤ C :=
@@ -749,11 +749,11 @@ by rw [←category.assoc, colim.ι_map, category.assoc]
   colim.map α ≫ colimit.desc G c = colimit.desc F ((cocones.precompose α).obj c) :=
 by ext; rw [←assoc, colim.ι_map, assoc, colimit.ι_desc, colimit.ι_desc]; refl
 
-lemma colimit.pre_map [has_colimits_of_shape K C] (E : K ⥤ J) :
+lemma colimit.pre_map [has_colimits_of_shape.{j v} K C] (E : K ⥤ J) :
   colimit.pre F E ≫ colim.map α = colim.map (whisker_left E α) ≫ colimit.pre G E :=
 by ext; rw [←assoc, colimit.ι_pre, colim.ι_map, ←assoc, colim.ι_map, assoc, colimit.ι_pre]; refl
 
-lemma colimit.pre_map' [has_colimits_of_shape.{v} K C]
+lemma colimit.pre_map' [has_colimits_of_shape.{j v} K C]
   (F : J ⥤ C) {E₁ E₂ : K ⥤ J} (α : E₁ ⟶ E₂) :
   colimit.pre F E₁ = colim.map (whisker_right α F) ≫ colimit.pre F E₂ :=
 by ext1; simp [(category.assoc _ _ _ _).symm]
@@ -761,7 +761,7 @@ by ext1; simp [(category.assoc _ _ _ _).symm]
 lemma colimit.pre_id (F : J ⥤ C) :
 colimit.pre F (functor.id _) = colim.map (functor.left_unitor F).hom := by tidy
 
-lemma colimit.map_post {D : Type u'} [category.{v+1} D] [has_colimits_of_shape J D] (H : C ⥤ D) :
+lemma colimit.map_post {D : Type u'} [category.{(max j v)+1} D] [has_colimits_of_shape.{j v} J D] (H : C ⥤ D) :
 /- H (colimit F) ⟶ H (colimit G) ⟶ colimit (G ⋙ H) vs
    H (colimit F) ⟶ colimit (F ⋙ H) ⟶ colimit (G ⋙ H) -/
   colimit.post F H ≫ H.map (colim.map α) = colim.map (whisker_right α H) ≫ colimit.post G H:=
@@ -778,8 +778,8 @@ nat_iso.of_components (λ F, nat_iso.of_components (colimit.hom_iso (unop F)) (b
 
 end colim_functor
 
-def has_colimits_of_shape_of_equivalence {J' : Type v} [small_category J']
-  (e : J ≌ J') [has_colimits_of_shape J C] : has_colimits_of_shape J' C :=
+def has_colimits_of_shape_of_equivalence {J' : Type j} [small_category J']
+  (e : J ≌ J') [has_colimits_of_shape.{j v} J C] : has_colimits_of_shape.{j v} J' C :=
 by { constructor, intro F, apply has_colimit_of_equivalence_comp e, apply_instance }
 
 end colimit

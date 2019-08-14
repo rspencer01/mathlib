@@ -6,20 +6,20 @@ Authors: Scott Morrison
 import category_theory.limits.cones
 import category_theory.discrete_category
 
-universes v u
+universes j v u
 
 open category_theory
 
 namespace category_theory.limits
 
-@[derive decidable_eq] inductive walking_pair : Type v
+@[derive decidable_eq] inductive walking_pair : Type j
 | left | right
 
 def pair_function {C : Type u} (X Y : C) : walking_pair → C
 | walking_pair.left := X
 | walking_pair.right := Y
 
-variables {C : Type u} [𝒞 : category.{v+1} C]
+variables {C : Type u} [𝒞 : category.{(max j v)+1} C]
 include 𝒞
 
 def pair (X Y : C) : discrete walking_pair ⥤ C :=

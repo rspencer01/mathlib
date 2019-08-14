@@ -6,14 +6,14 @@ Authors: Scott Morrison
 import category_theory.limits.limits
 import category_theory.discrete_category
 
-universes v u
+universes j v u
 
 open category_theory
 
 namespace category_theory.limits
 
-variables {β : Type v}
-variables {C : Type u} [𝒞 : category.{v+1} C]
+variables {β : Type j}
+variables {C : Type u} [𝒞 : category.{(max j v)+1} C]
 include 𝒞
 
 -- We don't need an analogue of `pair` (for binary products), `parallel_pair` (for equalizers),
