@@ -17,7 +17,7 @@ open topological_space
 variables {C : Type u} [𝒞 : category.{v+1} C]
 include 𝒞
 
-variables [has_colimits.{v} C]
+variables [has_colimits.{0 v} C]
 
 variables {X Y Z : Top.{v}}
 
@@ -26,7 +26,7 @@ namespace Top.presheaf
 variables (C)
 /-- Stalks are functorial with respect to morphisms of presheaves over a fixed `X`. -/
 def stalk_functor (x : X) : X.presheaf C ⥤ C :=
-((whiskering_left _ _ C).obj (open_nhds.inclusion x).op) ⋙ colim
+((whiskering_left _ _ C).obj (open_nhds.inclusion x).op) ⋙ colim.{0 v (max (v+1) u)}
 
 variables {C}
 
