@@ -174,7 +174,8 @@ tactic.transitivity' >> match q with
 | none := skip
 | some q :=
   do (r, lhs, rhs) ← target_lhs_rhs,
-     i_to_expr q >>= unify rhs
+     t ← infer_type lhs,
+     i_to_expr ``(%%q : %%t) >>= unify rhs
 end
 
 end interactive
