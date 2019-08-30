@@ -14,7 +14,8 @@ is the square of an integer.
 -/
 
 /-- We first prove a reformulation of the problem. -/
-theorem q6' (k : ℕ) (ha : ∃ a b : ℕ, a * a + b * b = (a * b + 1) * k) : ∃ l : ℕ , l * l = k :=
+theorem IMO1988_6_aux (k : ℕ) (ha : ∃ a b : ℕ, a * a + b * b = (a * b + 1) * k) :
+  ∃ l : ℕ , l * l = k :=
 begin
   have lemma1 : ∀{a b : ℤ}, a * a + b * b = (a * b + 1) * k ↔ b * b - (k * a) * b + (a * a - k) = 0,
   { intros, rw [right_distrib, ← sub_eq_iff_eq_add, ← sub_eq_zero], simp [mul_comm, mul_assoc] },
@@ -70,10 +71,10 @@ begin
 end
 
 /- From this it is easy to prove the actual problem. -/
-theorem q6 (a b : ℕ) (h : a*b + 1 ∣ a^2 + b^2) : ∃ k : ℕ , k^2 = (a^2 + b^2) / (a * b + 1)  :=
+theorem IMO1988_6 (a b : ℕ) (h : a*b + 1 ∣ a^2 + b^2) : ∃ k : ℕ , k^2 = (a^2 + b^2) / (a * b + 1) :=
 begin
   cases h with k hk,
-  cases q6' k ⟨a, b, _⟩ with l hl,
+  cases IMO1988_6_aux k ⟨a, b, _⟩ with l hl,
   swap, rw [← nat.pow_two, ← nat.pow_two, hk],
   use l, rw [hk, nat.mul_div_cancel_left], rw [nat.pow_two, hl], apply nat.zero_lt_succ
 end
