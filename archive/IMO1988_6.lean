@@ -3,7 +3,7 @@ Copyright (c) 2019 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn
 -/
-import data.int.basic
+import data.int.basic algebra.order
 /-!
 IMO Problem 1988-6.
 Let `a` and `b` be positive integers such that `ab + 1` divides `a^2 + b^2`. Show that
