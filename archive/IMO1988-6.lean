@@ -3,7 +3,7 @@ Copyright (c) 2019 Floris van Doorn. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Floris van Doorn
 -/
-import data.int.basic tactic.ring
+import data.int.basic
 /-!
 IMO Problem 1988-6.
 Let `a` and `b` be positive integers such that `ab + 1` divides `a^2 + b^2`. Show that
@@ -14,7 +14,7 @@ is the square of an integer.
 -/
 
 /-- We first prove a reformulation of the problem. -/
-theorem IMO1988_6_aux (k : ℕ) (ha : ∃ a b : ℕ, a * a + b * b = (a * b + 1) * k) :
+theorem IMO1988_6_aux (k : ℕ) (h : ∃ a b : ℕ, a * a + b * b = (a * b + 1) * k) :
   ∃ l : ℕ , l * l = k :=
 begin
   have lemma1 : ∀{a b : ℤ}, a * a + b * b = (a * b + 1) * k ↔ b * b - (k * a) * b + (a * a - k) = 0,
